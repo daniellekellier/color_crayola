@@ -43,7 +43,10 @@ phase_2 <- color_responses %>%
   group_by(subj) %>%
   mutate(response = as.numeric(as.character(response))) %>%
   left_join(color_coordinates %>% select(id,L,A,B),
-            by = c("response" = "id"))
+            by = c("response" = "id")) %>%
+  mutate(L = jitter(L, amount = 0),
+         A = jitter(A, amount = 0),
+         B = jitter(B, amount = 0))
 
 color_cat_3d <- list()
 
@@ -59,10 +62,6 @@ for (id_num in unique(phase_2$subj)) {
   
 }
 
-plot_ly(filter(phase_2,subj == "060817_02"), x = ~B, y = ~A, z = ~L, marker = list(color = ~stimulus, colorscale = ~stimulus)) %>%
-  layout(scene = list(xaxis = list(title = 'b*'),
-                      yaxis = list(title = 'a*'),
-                      zaxis = list(title = 'L*')))
 
 ```
 

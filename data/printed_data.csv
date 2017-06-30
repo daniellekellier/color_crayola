@@ -1,4 +1,4 @@
-subj,sex,age,pilot,phase,phase_onset,phase_offset,prompt,prompt_onset,prompt_offset,response,response_onset,response_offset,
+subj,sex,age,pilot,phase,phase_onset,phase_offset,stimulus,stim_onset,stim_offset,response,response_onset,response_offset,
 022317_04,f,2.7,y,1,30802,100096,y,46206,48314,"y",47328,47328,
 022317_04,f,2.7,y,1,30802,100096,bk,50524,54162,"w",52530,52530,
 022317_04,f,2.7,y,1,30802,100096,w,55760,57834,"w",57086,57086,

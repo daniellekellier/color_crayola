@@ -3,15 +3,17 @@ packrat::on()
 library(tidyverse)
 library(magrittr)
 library(forcats)
+library(plotly)
 ```
 
 ```{r}
 raw_data <- read_csv("data/printed_data.csv")
+color_coordinates <- read_csv("data/crayola_color_coordinates.csv")
   
 color_responses <- raw_data %>%
                     select(-starts_with("X")) %>%
                     filter(pilot %in% c('N','n',0)) %>%
-                    mutate(prompt = fct_collapse(prompt,
+                    mutate(stimulus = fct_collapse(stimulus,
                                                  `red` = c("r","41"),
                                                  `purple` = c("pu","57"),
                                                  `pink` = c("pi","13"),
@@ -34,4 +36,33 @@ color_responses <- raw_data %>%
 write_csv(color_responses, "data/color_responses.csv", na="")
 ```
 
+
+```{r}
+phase_2 <- color_responses %>%
+  filter(phase == 2) %>%
+  group_by(subj) %>%
+  mutate(response = as.numeric(as.character(response))) %>%
+  left_join(color_coordinates %>% select(id,L,A,B),
+            by = c("response" = "id"))
+
+color_cat_3d <- list()
+
+for (id_num in unique(phase_2$subj)) {
+  temp <- filter(phase_2,subj == id_num)
+  
+  p <- plot_ly(temp, x = ~B, y = ~A, z = ~L, 
+                marker = list(color = ~stimulus, colorscale = ~stimulus)) %>%
+          layout(scene = list(xaxis = list(title = 'b*'),
+                              yaxis = list(title = 'a*'),
+                              zaxis = list(title = 'L*')))
+  color_cat_3d[[id_num]] <- p
+  
+}
+
+plot_ly(filter(phase_2,subj == "060817_02"), x = ~B, y = ~A, z = ~L, marker = list(color = ~stimulus, colorscale = ~stimulus)) %>%
+  layout(scene = list(xaxis = list(title = 'b*'),
+                      yaxis = list(title = 'a*'),
+                      zaxis = list(title = 'L*')))
+
+```
 

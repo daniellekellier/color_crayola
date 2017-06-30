@@ -14,7 +14,7 @@ begin
     dir = File.expand_path("~/Documents/repo/crayola_color/data")
     out_file = File.new(dir + "/printed_data.csv", "w")
 
-    out_file.syswrite ("subj,sex,age,pilot,phase,phase_onset,phase_offset,prompt,prompt_onset,prompt_offset,response,response_onset,response_offset,\n")
+    out_file.syswrite ("subj,sex,age,pilot,phase,phase_onset,phase_offset,stimulus,stim_onset,stim_offset,response,response_onset,response_offset,\n")
 
     DATE_FORMATS = ['%m/%d/%Y', '%m/%d/%y']
 

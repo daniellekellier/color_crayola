@@ -1,4 +1,4 @@
-subj,sex,age,pilot,phase,phase_onset,phase_offset,prompt,prompt_onset,prompt_offset,response_onset,response_offset,response
+subj,sex,age,pilot,phase,phase_onset,phase_offset,stimulus,stim_onset,stim_offset,response_onset,response_offset,response
 052517_01,f,4.3,n,1,35870,96118,brown,40936,45763,40936,40936,brown
 052517_01,f,4.3,n,1,35870,96118,yellow,45764,51441,45764,45764,yellow
 052517_01,f,4.3,n,1,35870,96118,purple,51442,56881,51442,51442,black

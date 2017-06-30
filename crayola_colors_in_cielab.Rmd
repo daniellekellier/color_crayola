@@ -56,7 +56,6 @@ storage.mode(x@coords) <- "numeric"
 y <- as(x, "LAB")
 pack_64 %<>% 
   left_join(as.data.frame(y@coords) %>% mutate(id = row_number())) 
-names(pack_64) <- tolower(names(pack_64))
 
 write_csv(pack_64,"data/crayola_color_coordinates.csv", na="")
 

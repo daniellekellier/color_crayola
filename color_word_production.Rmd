@@ -1,0 +1,58 @@
+
+Gather relevant Wordbank data for color words in the English WS form
+```{r}
+
+admin_data <- get_administration_data("English","WS")
+
+color_words <- c("black", "blue","dark", "brown", "green", "orange (description)", "red", "white", "yellow")
+
+instrument_data <- get_item_data("English","WS") %>% filter(definition %in% color_words)
+
+item_data <- get_instrument_data(instrument_language = "English",
+                                 instrument_form = "WS", items = instrument_data$item_id)
+
+```
+
+
+Stitch together Wordbank data. Create per-administration data.
+```{r}
+
+combined_data <- left_join(admin_data, item_data, by="data_id") %>% mutate(num_value = ifelse(value == "produces", 1, 0), num_item_id = as.character(num_item_id), color = fct_collapse(num_item_id, 
+                        `black` = "510", 
+                        `blue` = "511", 
+                        `brown` = "513",
+                        `dark` = "518",
+                        `green` = "528", 
+                        `orange` = "546", 
+                        `red` = "550", 
+                        `white` = "563", 
+                        `yellow` = "565")
+                        )
+
+group_data <- combined_data %>% group_by(age, data_id) %>% summarise(colors_known = sum(num_value), all_words = n(), mean_known = sum(num_value)/(n()-1))
+
+
+```
+
+
+Plot data
+```{r}
+
+ggplot(group_data, aes(x = age, y = mean_known)) +
+  geom_jitter(width = .4, size = 1, alpha = .1) +
+  scale_colour_solarized(name="Percentile") +
+  scale_x_continuous(breaks = seq(16, 30, 4),
+                     limits = c(16, 30),
+                     name = "Age (months)") +
+  ylab("% of Color Words Known") +
+  scale_y_continuous(limits = c(0,1), labels = scales::percent) + 
+  theme(legend.position = "bottom")
+
+ggplot(group_data, aes(age, fill=factor(colors_known, levels = length(unique(colors_known)):0))) + geom_bar(position = "fill", width=0.9) + scale_y_continuous(breaks = seq(0,1,0.25), labels = scales::percent) + scale_colour_solarized(name="# of Colors Known") + labs(fill = "# of Colors Known", y = "Proportion of Population", x = "Age (months)") + theme(legend.position = "bottom")
+
+ggplot(combined_data, aes(age, fill=factor(num_value, levels = 1:0))) + geom_bar(position = "fill", width=0.9) + facet_wrap(~color)+ scale_y_continuous(breaks = seq(0,1,0.25), labels = scales::percent) + scale_colour_solarized(name="# of Colors Known") + labs(fill = "# of Colors Known", y = "Proportion of Population", x = "Age (months)") + theme(legend.position = "bottom")
+
+
+```
+
+

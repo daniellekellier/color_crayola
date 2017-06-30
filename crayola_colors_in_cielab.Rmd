@@ -1,11 +1,11 @@
 
 Load of packages and set crayola data
 ```{r}
-
+packrat::on()
 library(rvest)
 library(colorspace)
-library(dplyr)
-library(reshape2)
+library(tidyverse)
+library(magrittr)
 library(plotly)
 
 crayonURL <- "https://en.wikipedia.org/wiki/List_of_Crayola_crayon_colors"
@@ -20,7 +20,12 @@ temp <- crayonURL %>%
   read_html %>%
   html_nodes("table")
 
-all_crayons <- html_table(temp[[1]]) %>% mutate(Color = tolower(gsub("[^a-zA-Z0-9]","",Color)), Hexadecimal = substr(Hexadecimal, 1,7))
+all_crayons <- html_table(temp[[1]])
+
+names(all_crayons) <- tolower(names(all_crayons))
+
+all_crayons %<>%
+  mutate(color = tolower(gsub("[^a-zA-Z0-9]","",color)), hexadecimal = substr(hexadecimal, 1,7))
 
 ```
 
@@ -28,19 +33,17 @@ all_crayons <- html_table(temp[[1]]) %>% mutate(Color = tolower(gsub("[^a-zA-Z0-
 Take list of colors in 64-pack and add data from the larger Wikipedia table. Fix individual cases of name changes or updated colors.
 ```{r}
 
-pack_64 <- read.csv("~/Desktop/crayola_colors.csv",header = F, col.names = "Color") %>% mutate(Color = tolower(gsub("[^a-zA-Z0-9]","",Color))) %>% left_join(all_crayons)
+pack_64 <- read_csv("~/Desktop/crayola_colors.csv", col_names = c("color", "id")) %>% mutate(color = tolower(gsub("[^a-zA-Z0-9]","",color))) %>% left_join(all_crayons)
 
-pack_64[pack_64$Color == "violet",2:ncol(pack_64)] <- all_crayons[all_crayons$Color=="violetii",2:ncol(pack_64)]
+pack_64[pack_64$color == "violet",3:ncol(pack_64)] <- filter(all_crayons, color == "violetii") %>% select(-color)
 
-pack_64[pack_64$Color == "blue",2:ncol(pack_64)] <- all_crayons[all_crayons$Color=="blueiii",2:ncol(pack_64)]
+pack_64[pack_64$color == "blue",3:ncol(pack_64)] <- filter(all_crayons, color == "blueiii") %>% select(-color)
 
-pack_64[pack_64$Color == "chestnut",2:ncol(pack_64)] <- all_crayons[all_crayons$Color=="indianred",2:ncol(pack_64)]
+pack_64[pack_64$color == "chestnut",3:ncol(pack_64)] <- filter(all_crayons, color == "indianred") %>% select(-color)
 
-pack_64[pack_64$Color == "gold",2:ncol(pack_64)] <- all_crayons[all_crayons$Color=="goldii",2:ncol(pack_64)]
+pack_64[pack_64$color == "gold",3:ncol(pack_64)] <- filter(all_crayons, color == "goldii") %>% select(-color)
 
-pack_64[pack_64$Color == "lavender",2:ncol(pack_64)] <- all_crayons[all_crayons$Color=="lavenderii",2:ncol(pack_64)]
-
-pack_64$num_range <- seq(1,nrow(pack_64))
+pack_64[pack_64$color == "lavender",3:ncol(pack_64)] <- filter(all_crayons, color == "lavenderii") %>% select(-color)
 
 ```
 
@@ -48,10 +51,14 @@ pack_64$num_range <- seq(1,nrow(pack_64))
 Take the given hex code values and change them into LAB triplets
 ```{r}
 
-x <- hex2RGB(pack_64$Hexadecimal, gamma = FALSE)
-storage.mode(x@coords) <- "numeric" # as(..., "LUV") doesn't like integers for some reason
+x <- hex2RGB(pack_64$hexadecimal, gamma = FALSE)
+storage.mode(x@coords) <- "numeric" 
 y <- as(x, "LAB")
-DF <- as.data.frame(y@coords)
+pack_64 %<>% 
+  left_join(as.data.frame(y@coords) %>% mutate(id = row_number())) 
+names(pack_64) <- tolower(names(pack_64))
+
+write_csv(pack_64,"data/crayola_color_coordinates.csv", na="")
 
 ```
 

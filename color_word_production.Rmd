@@ -1,3 +1,10 @@
+```{r}
+packrat::on()
+library(wordbankr)
+library(tidyverse)
+library(forcats)
+library(langcog)
+```
 
 Gather relevant Wordbank data for color words in the English WS form
 ```{r}
@@ -28,6 +35,8 @@ combined_data <- left_join(admin_data, item_data, by="data_id") %>% mutate(num_v
                         `white` = "563", 
                         `yellow` = "565")
                         )
+
+write_csv(combined_data, "data/wordbank_color_production.csv", na="")
 
 group_data <- combined_data %>% group_by(age, data_id) %>% summarise(colors_known = sum(num_value), all_words = n(), mean_known = sum(num_value)/(n()-1))
 

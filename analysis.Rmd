@@ -1,0 +1,37 @@
+```{r}
+packrat::on()
+library(tidyverse)
+library(magrittr)
+library(forcats)
+```
+
+```{r}
+raw_data <- read_csv("data/printed_data.csv")
+  
+color_responses <- raw_data %>%
+                    select(-starts_with("X")) %>%
+                    filter(pilot %in% c('N','n',0)) %>%
+                    mutate(prompt = fct_collapse(prompt,
+                                                 `red` = c("r","41"),
+                                                 `purple` = c("pu","57"),
+                                                 `pink` = c("pi","13"),
+                                                 `white` = c("w","59"),
+                                                 `black` = c("bk","4"),
+                                                 `orange` = c("o","33"),
+                                                 `green` = c("gn","23"),
+                                                 `gray` = c("gy","22"),
+                                                 `yellow` = c("y","62"),
+                                                 `blue` = c("be", "14"),
+                                                 `brown` = c("br", "9"))) %>%
+                    mutate(response = str_replace_all(response, 
+                                      c("^r$" = "red", "^pu$" = "purple", "^pi$" = "pink",
+                                      "^w$" = "white", "^bk$" = "black", "^o$" = "orange",
+                                      "^gn$" = "green", "^gy$" = "gray", "^y$" = "yellow",
+                                      "^be$" = "blue", "^br$" = "brown"))) %>%
+                    mutate(response = strsplit(as.character(response), ",")) %>% 
+                    unnest(response)
+
+write_csv(color_responses, "data/color_responses.csv", na="")
+```
+
+

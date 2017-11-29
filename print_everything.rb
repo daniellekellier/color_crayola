@@ -38,6 +38,8 @@ begin
             prompt = getVariable("prompt")
             response = getVariable("response")
 
+            dot = id.cells.first.dot
+            next if parse_or_nil(dot).nil? 
             for idcell in id.cells
                 # print idcell.dot.to_s + " - " + idcell.dob.to_s + " = "
                 age = (((parse_or_nil(idcell.dot) - parse_or_nil(idcell.dob)).to_f)/365).round(1)
